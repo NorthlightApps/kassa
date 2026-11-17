@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Моя касса — учёт продаж и расходов для Mac</title>
+<meta name="description" content="Моя касса — простой учёт продаж и расходов для маленького бизнеса на Mac. Выручка, прибыль, маржа и графики. Бесплатно, данные хранятся у вас.">
+<meta property="og:title" content="Моя касса — учёт продаж и расходов для Mac">
+<meta property="og:description" content="Выручка, расходы, прибыль и маржа в одном окне. Бесплатно, без облака и регистрации.">
+<meta property="og:image" content="assets/app.jpg">
+<meta name="theme-color" content="#0b0f1c">
+<link rel="icon" type="image/png" href="assets/icon-256.png">
+<link rel="apple-touch-icon" href="assets/icon-256.png">
+<style>
+  :root {
+    --bg: #0b0f1c; --fg: #fff; --muted: rgba(255,255,255,.62); --dim: rgba(255,255,255,.4);
+    --card: rgba(255,255,255,.04); --line: rgba(255,255,255,.1);
+    --inc: #3ecf9b; --exp: #f2785c; --acc: #4865ee;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font); -webkit-font-smoothing: antialiased; line-height: 1.5; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; height: auto; }
+  .wrap { width: min(1140px, 100% - 32px); margin-inline: auto; }
+  .glow { position: fixed; inset: 0; pointer-events: none; z-index: -1;
+    background: radial-gradient(55% 45% at 15% 0%, rgba(72,101,238,.38), transparent 70%),
+                radial-gradient(50% 45% at 95% 90%, rgba(62,207,155,.16), transparent 70%); }
+  nav { position: sticky; top: 0; z-index: 20; backdrop-filter: saturate(160%) blur(18px); -webkit-backdrop-filter: saturate(160%) blur(18px);
+    background: rgba(11,15,28,.65); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 16px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .logo img { width: 28px; height: 28px; }
+  .nav-links { display: flex; gap: 24px; font-size: 14px; color: var(--muted); }
+  .nav-links a:hover { color: var(--fg); }
+  @media (max-width: 640px) { .nav-links { display: none; } }
+  .btn { display: inline-flex; align-items: center; gap: 10px; border-radius: 999px; font-weight: 600; transition: transform .2s cubic-bezier(.2,.9,.3,1.3), box-shadow .2s, background .2s; }
+  .btn:active { transform: scale(.96); }
+  .btn svg { width: 20px; height: 20px; }
+  .btn-sm { padding: 8px 16px; font-size: 14px; background: #fff; color: #0b0f1c; }
+  .btn-lg { padding: 16px 28px; font-size: 18px; background: var(--inc); color: #06281b; box-shadow: 0 10px 40px rgba(62,207,155,.3); }
+  .btn-lg:hover { transform: translateY(-2px); box-shadow: 0 16px 50px rgba(62,207,155,.45); }
+  .btn-ghost { padding: 14px 24px; font-size: 16px; background: rgba(255,255,255,.06); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); }
+  .btn-ghost:hover { background: rgba(255,255,255,.12); transform: translateY(-2px); }
+
+  header.hero { text-align: center; padding: 80px 0 20px; }
+  .pill { display: inline-flex; gap: 8px; align-items: center; padding: 6px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 13px; color: var(--muted); margin-bottom: 26px; }
+  .pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--inc); box-shadow: 0 0 10px var(--inc); }
+  h1 { font-size: clamp(40px, 7vw, 82px); line-height: 1.03; letter-spacing: -.035em; font-weight: 800; }
+  h1 span { background: linear-gradient(90deg, #7d95ff, #3ecf9b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { margin: 22px auto 34px; max-width: 620px; font-size: clamp(17px, 2.2vw, 21px); color: var(--muted); }
+  .meta { margin-top: 14px; font-size: 13px; color: var(--dim); }
+  .shot { margin: 56px auto 0; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 40px 140px rgba(72,101,238,.28); background: #0f1320; }
+  .shot .bar { height: 30px; display: flex; align-items: center; gap: 7px; padding: 0 14px; background: rgba(255,255,255,.04); border-bottom: 1px solid var(--line); }
+  .shot .bar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+  .shot .bar i:nth-child(2) { background: #febc2e; } .shot .bar i:nth-child(3) { background: #28c840; }
+
+  section { padding: 88px 0 0; }
+  h2 { font-size: clamp(30px, 4.6vw, 48px); letter-spacing: -.03em; line-height: 1.08; text-align: center; }
+  .sub { text-align: center; color: var(--muted); max-width: 580px; margin: 14px auto 0; font-size: 17px; }
+  .grid { margin-top: 44px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .f { padding: 24px; border-radius: 22px; background: var(--card); border: 1px solid var(--line); }
+  .f .ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 19px; margin-bottom: 14px; background: rgba(72,101,238,.22); }
+  .f b { font-size: 18px; display: block; }
+  .f p { color: var(--muted); font-size: 15px; margin-top: 6px; }
+  kbd { font-family: var(--font); font-size: 13px; padding: 1px 7px; border-radius: 6px; background: rgba(255,255,255,.1); border: 1px solid var(--line); }
+  .steps { margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; counter-reset: s; }
+  .step { padding: 22px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); counter-increment: s; }
+  .step::before { content: counter(s); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--acc); font-weight: 800; margin-bottom: 12px; }
+  .step b { display: block; font-size: 17px; }
+  .step p { color: var(--muted); font-size: 15px; margin-top: 4px; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: 13px; background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 6px; }
+  .cta { text-align: center; }
+  .cta .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+  .heart { font-size: 40px; color: #ff7aa8; text-shadow: 0 0 30px rgba(255,122,168,.6); }
+  footer { margin-top: 96px; padding: 32px 0 40px; border-top: 1px solid var(--line); color: var(--dim); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer a:hover { color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#"><img src="assets/icon-256.png" alt="">Моя касса</a>
+    <div class="nav-links"><a href="#features">Возможности</a><a href="#install">Установка</a><a href="#support">Поддержать</a><a href="../">Northlight Apps</a></div>
+    <a class="btn btn-sm" href="downloads/MoyaKassa.dmg" download>Скачать</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="pill"><i></i>Бесплатно · без облака и регистрации</div>
+    <h1>Сколько ты <span>на самом деле</span><br>зарабатываешь?</h1>
+    <p class="lead">Моя касса — простой учёт продаж и расходов для маленького бизнеса. Записал продажу за пять секунд, и сразу видно выручку, прибыль и куда уходят деньги.</p>
+    <a class="btn btn-lg" href="downloads/MoyaKassa.dmg" download>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c.02 2.43 2.13 3.24 2.15 3.25-.02.06-.34 1.15-1.11 2.28-.67.98-1.36 1.95-2.45 1.97-1.07.02-1.42-.63-2.64-.63-1.23 0-1.61.61-2.62.65-1.05.04-1.85-1.06-2.52-2.03-1.37-1.98-2.42-5.6-1.01-8.04.7-1.21 1.95-1.98 3.3-2 1.03-.02 2 .69 2.63.69.63 0 1.81-.86 3.06-.73.52.02 1.98.21 2.92 1.59-.08.05-1.74 1.02-1.71 3.03zM14.35 5.5c.56-.67.93-1.61.83-2.55-.8.03-1.77.53-2.35 1.2-.51.6-.97 1.55-.85 2.47.9.07 1.81-.46 2.37-1.12z"/></svg>
+      Скачать для macOS</a>
+    <p class="meta">Бесплатно · .dmg · 0,9 МБ · macOS 13+ · Apple Silicon и Intel</p>
+  </header>
+
+  <div class="shot"><div class="bar"><i></i><i></i><i></i></div><img src="assets/app.jpg" alt="Окно «Моей кассы»: выручка, расходы, прибыль, маржа и график по дням" width="2560" height="1920"></div>
+
+  <section id="features">
+    <h2>Всё, что нужно,<br>и ничего лишнего</h2>
+    <p class="sub">Для тех, кто продаёт свечи, одежду, услуги или товары на маркетплейсах и хочет видеть цифры без Excel и бухгалтерии.</p>
+    <div class="grid">
+      <div class="f"><div class="ic">⚡</div><b>Запись за 5 секунд</b><p>Сумма, категория, Enter. Категории подставляются сами: розница, опт, маркетплейс, закупка, реклама.</p></div>
+      <div class="f"><div class="ic">📈</div><b>Прибыль и маржа</b><p>Выручка, расходы, чистая прибыль, маржа и средний чек. И сравнение с прошлым месяцем.</p></div>
+      <div class="f"><div class="ic">🧭</div><b>Куда уходят деньги</b><p>Расходы и доходы по категориям, график по дням с накопленной прибылью.</p></div>
+      <div class="f"><div class="ic">₴</div><b>Любая валюта</b><p>Гривна, евро, доллар, злотый, тенге, рубль или фунт — выбери в один клик.</p></div>
+      <div class="f"><div class="ic">🔒</div><b>Данные только у тебя</b><p>Никакого облака и регистрации: журнал лежит файлом на твоём Mac. Есть резервная копия <kbd>⇧⌘S</kbd>.</p></div>
+      <div class="f"><div class="ic">⬇︎</div><b>Экспорт в CSV</b><p>Выгрузи месяц или год в таблицу для бухгалтера или Excel: <kbd>⌘E</kbd>.</p></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Установка за минуту</h2>
+    <div class="steps">
+      <div class="step"><b>Скачай</b><p>Нажми «Скачать для macOS» и открой <code>MoyaKassa.dmg</code>.</p></div>
+      <div class="step"><b>Перетащи в «Программы»</b><p>Перетяни «Мою кассу» на папку Applications.</p></div>
+      <div class="step"><b>Разреши запуск</b><p>При первом запуске macOS спросит. Открой Системные настройки → Конфиденциальность и безопасность → «Всё равно открыть».</p></div>
+      <div class="step"><b>Веди учёт</b><p>Запиши первую продажу. Сочетание <kbd>⌘N</kbd> сразу ставит курсор в поле суммы.</p></div>
+    </div>
+  </section>
+
+  <section id="support" class="cta">
+    <div class="heart">♥</div>
+    <h2>Бесплатно и без рекламы</h2>
+    <p class="sub">Приложение делает один человек. Если «Моя касса» помогает считать деньги, можно поддержать автора.</p>
+    <div class="btns">
+      <a class="btn btn-lg" href="downloads/MoyaKassa.dmg" download>Скачать «Мою кассу»</a>
+      <a class="btn btn-ghost" href="https://send.monobank.ua/jar/BubE4YLho" target="_blank" rel="noopener">♥ Поддержать · карта или Apple Pay</a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 <a href="../">Northlight Apps</a></span>
+    <span><a href="https://www.instagram.com/notchisland.app/">Instagram</a> · <a href="../notchisland/">NotchIsland</a> · <a href="../peelnote/">PeelNote</a></span>
+  </div>
+</footer>
+</body>
+</html>
